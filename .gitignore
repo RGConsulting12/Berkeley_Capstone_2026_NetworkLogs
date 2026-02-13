@@ -205,3 +205,39 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+
+# -------------------------
+# Capstone (ML/Data) extras
+# -------------------------
+
+# Data (keep local; avoids GitHub large-file rejects)
+data/
+datasets/
+**/data**/
+**/data_release**/
+*.csv
+*.tsv
+*.parquet
+*.feather
+*.h5
+*.hdf5
+*.jsonl
+
+# Model artifacts / outputs
+models/
+checkpoints/
+outputs/
+runs/
+logs/
+wandb/
+mlruns/
+*.pkl
+*.joblib
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+# Local notebooks/cache
+.ipynb_checkpoints/
