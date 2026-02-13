@@ -33,7 +33,7 @@ This project analyzes the **Los Alamos National Laboratory (LANL) Unified Host a
 
 ## Notebook
 
-**[LANL_Auth_Classification_EDA.ipynb](LANL_Auth_Classification_EDA.ipynb)** — Full analysis including:
+**[LANL_Auth_Classification.ipynb](LANL_Auth_Classification.ipynb)** — Full analysis including:
 - Data cleaning (missing values, duplicates, cardinality assessment)
 - EDA with visualizations (class imbalance, feature distributions, correlation heatmap, outlier analysis)
 - Feature engineering (OneHotEncoding, user behavioral profiles)
@@ -52,6 +52,6 @@ This project analyzes the **Los Alamos National Laboratory (LANL) Unified Host a
 ```
 Network_Classification/
 ├── README.md                           # This file
-├── LANL_Auth_Classification_EDA.ipynb  # Main analysis notebook
+├── LANL_Auth_Classification.ipynb      # Main analysis notebook
 └── Dataset_Lab.txt                     # Dataset description
 ```
