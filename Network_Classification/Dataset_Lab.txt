@@ -1,0 +1,20 @@
+Comprehensive, Multi-Source Cyber-Security Events
+
+This data set represents 58 consecutive days of de-identified event data collected from five sources within Los Alamos National Laboratory’s corporate, internal computer network.
+
+The data sources include Windows-based authentication events from both individual computers and centralized Active Directory domain controller servers; process start and stop events from individual Windows computers; Domain Name Service (DNS) lookups as collected on internal DNS servers; network flow data as collected on at several key router locations; and a set of well-defined red teaming events that present bad behavior within the 58 days. In total, the data set is approximately 12 gigabytes compressed across the five data elements and presents 1,648,275,307 events in total for 12,425 users, 17,684 computers, and 62,974 processes.
+
+Specific users that are well known system related (SYSTEM, Local Service) were not de-identified though any well-known administrators account were still de-identified. In the network flow data, well-known ports (e.g. 80, 443, etc) were not de-identified. All other users, computers, process, ports, times, and other details were de-identified as a unified set across all the data elements (e.g. U1 is the same U1 in all of the data). The specific timeframe used is not disclosed for security purposes. In addition, no data that allows association outside of LANL’s network is included. All data starts with a time epoch of 1 using a time resolution of 1 second. In the authentication data, failed authentication events are only included for users that had a successful authentication event somewhere within the data set.
+
+For the auth.txt file: 
+
+This data represents authentication events collected from individual Windows-based desktop computers, servers, and Active Directory servers. Each event is on a separate line in the form of “time,source user@domain,destination user@domain,source computer,destination computer,authentication type,logon type,authentication orientation,success/failure” and represents an authentication event at the given time. The values are comma delimited and any fields that do not have a valid value are represented as a question mark (’?’).
+
+License:
+To the extent possible under law, Los Alamos National Laboratory has waived all copyright and related or neighboring rights to Comprehensive, Multi-Source Cyber-Security Events. This work is published from: United States.
+
+Notes:
+
+This data set and associated research have been approved by the LANL Human Subject Research Review Board under approval LANL 14-07 X and has been approved for public release under approval LA-UR-15-23810.
+
+Contact For questions, or other feedback, please contact cyberdata@lanl.gov.

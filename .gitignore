@@ -244,3 +244,9 @@ mlruns/
 
 # LANL dataset (73GB — too large for git)
 auth.txt
+
+# Scratch/coursework notebooks (not part of capstone deliverable)
+Network_Classification/SVM_model.ipynb
+Network_Classification/Untitled1.ipynb
+Network_Classification/discussion_16.1-Copy1.ipynb
+Network_Classification/Nemotron_work/
