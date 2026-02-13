@@ -241,3 +241,6 @@ mlruns/
 
 # Local notebooks/cache
 .ipynb_checkpoints/
+
+# LANL dataset (73GB — too large for git)
+auth.txt
