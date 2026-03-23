@@ -92,6 +92,10 @@ SMOTE is applied only to training data (never to the test set). Each model is ev
 - Anomaly detection framing (Isolation Forest, One-Class SVM)
 - Decision threshold tuning based on cost of false positives vs. false negatives
 
+## Key Takeaway for Decision Makers
+
+- A small combination of user, activity, authentication, and logon-type signals appears to strongly predict failed logon attempts. In particular, activity involving U1067@?, U59@?, or U22@DOM1, combined with TGT, MICROSOFT_AUTHENTICATION_PACKAGE_V1_0, and Batch or Interactive logons, is associated with a high probability of failure. This gives decision-makers a usable early-warning pattern: when these signals appear together, they should trigger closer review. The immediate implication is not only user awareness and account-specific follow-up, but also potential investigation into whether these accounts or the systems they use are being targeted or compromised. Acting on these signals earlier may help prevent future successful logons tied to malicious activity.
+
 ## Repository Structure
 
 ```
