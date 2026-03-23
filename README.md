@@ -1,96 +1,88 @@
-# Berkeley_Capstone_2026_NetworkLogs
-Berkeley Capstone Project
+# LANL Network Authentication Classification
 
-___
+## Overview
 
-# Network Authentication Classification Analysis  
-**Following CRISP-DM Methodology and ML Reference Guide**
+This project analyzes the **Los Alamos National Laboratory (LANL) Unified Host and Network Dataset** to classify enterprise authentication events as normal (Success) or anomalous (Fail). The analysis follows **CRISP-DM methodology** and addresses authentication anomaly detection under severe class imbalance.
 
----
+## Problem Statement
 
-## Project Overview
+The challenge aligns with Cain et al. (Okta cybersecurity paper, arXiv:2411.07314v1): failures are rare, context is limited, and rule-based signals do not fully capture user behavior. This project focuses on **distinguishing meaningful behavioral patterns from identity-only features** so that unusual authentication activity can be recognized more reliably with fewer false positives.
 
-### Problem Statement
-Because authentication failures are rare and context-dependent, we reframed the problem from predicting failures to modeling **normal authentication behavior**.
+### Research Question
 
-Using the CRISP-DM methodology, we first conducted exploratory and information-theoretic analysis to determine which features encode **behavior** versus **identity**. This allowed us to design aggregated, window-based features aligned with enterprise authentication processes, enabling robust anomaly detection rather than brittle classification.
+Can behavioral authentication features (AuthType, LogonType, Activity) distinguish normal from anomalous enterprise authentication more effectively than identity-based features, and which modeling approaches best capture these patterns under severe class imbalance?
 
----
+## Dataset
 
-## Refined Research Question
+- **Source**: [LANL Unified Host and Network Dataset](https://csr.lanl.gov/data/2017/)
+- **File**: `auth.txt` (~73 GB, 1+ billion events)
+- **Sample**: 500,000 stratified random samples via chunked reservoir sampling
+- **Structure**: 9 columns — Time*, SourceUser, DestUser, SourceComputer, DestComputer, AuthType, LogonType, Activity, Status
+- **Note**: Time column is anonymized; temporal analysis is not possible.
 
-Can we effectively distinguish between normal and anomalous enterprise authentication patterns by modeling **behavioral features** (authentication type, logon type, activity orientation) rather than identity features?  
+## Methodology
 
-Additionally, which classification techniques best capture these patterns under severe class imbalance (~1.2% failure rate)?
+### Leakage-Safe Pipeline
 
----
+The feature engineering pipeline was rebuilt to eliminate target leakage:
 
-## Data Source
+- **Split before feature computation**: Train/test split occurs before any aggregate or identity-based features (per Furtado et al., arXiv:2508.07062).
+- **Fit on train only**: All encodings and frequency mappings are fit on the training set; the test set is never used during feature construction.
+- **No target-derived features**: Status, failure_rate, or any target-derived metric are excluded from predictors.
 
-**Dataset:** Los Alamos National Laboratory (LANL) Unified Host and Network Dataset  
-**File:** `auth.txt` (~73GB, 1+ billion authentication events)  
-**Sample Size:** 500,000 stratified random samples using reservoir sampling  
+### SMOTE
 
-**Structure (9 columns):**
-- `Time*`
-- `SourceUser`
-- `DestUser`
-- `SourceComputer`
-- `DestComputer`
-- `AuthType`
-- `LogonType`
-- `Activity`
-- `Status`
+SMOTE is applied only to training data (never to the test set). Each model is evaluated on two variants: **Original** (imbalanced training) and **SMOTE** (resampled training), both tested on the same held-out test set.
 
-> *Note:* The `Time` column is anonymized/classified. Temporal sequence analysis was not possible.
+### Feature Categories
 
----
+| Category   | Features                                              | Method                                  |
+|-----------|--------------------------------------------------------|-----------------------------------------|
+| Behavioral | AuthType, LogonType, Activity                          | OneHotEncoding (fit on train)            |
+| Identity   | SourceUser, DestUser, SourceComputer, DestComputer     | Frequency/cardinality (from train only)  |
 
-## Methodology & Techniques
+## Key Findings
 
-### Feature Engineering
-- One-Hot Encoding for low-cardinality behavioral features:
-  - `AuthType`
-  - `LogonType`
-  - `Activity`
+1. **Severe class imbalance**: ~1.2% of events are failures (79:1 Success-to-Fail ratio).
+2. **Behavioral features drive performance**: AuthType, LogonType, and Activity separate successes from failures more effectively than identity-only features.
+3. **Best model**: **KNN (Original)** achieves the highest F1 for the Fail class (F1 ≈ 0.915) and was selected for deployment.
+4. **SMOTE**: Evaluated for all models; for this dataset, the best KNN variant uses Original (non-SMOTE) training data.
+5. **F1 for Fail**: Chosen as the primary metric because accuracy is misleading under imbalance (a naive baseline reaches ~98.8% by always predicting Success).
 
-### Identity-Based Aggregation
-- Behavioral profiles per user/computer  
-- Alternative to temporal sliding-window modeling
+## Model Comparison (Top Performers)
 
-### Dimensionality Reduction
-- Principal Component Analysis (PCA) to understand feature structure and relationships
+| Model                  | Data Type | F1 (Fail) | Precision | Recall |
+|------------------------|-----------|-----------|-----------|--------|
+| KNN (Original)         | Original  | 0.915     | 0.924     | 0.907  |
+| Gradient Boosting      | Original  | 0.900     | 0.920     | 0.881  |
+| KNN (SMOTE)            | SMOTE     | 0.874     | 0.830     | 0.923  |
 
-### Classification Models
-- Logistic Regression
-- Decision Trees
-- K-Nearest Neighbors (KNN)
-- Support Vector Machines (SVM)
-- Class-weight balancing to address severe imbalance
+## Notebook
 
-### Evaluation Metrics
-- Precision
-- Recall
-- F1-score  
-(Focus on minority-class performance)
+**[LANL_Auth_Classification.ipynb](LANL_Auth_Classification.ipynb)** — Full analysis including:
 
----
+- Data loading and chunked reservoir sampling
+- Data quality assessment (placeholders, duplicates, cardinality)
+- Categorical cleaning (AuthType consolidation, placeholder handling)
+- EDA with visualizations (class imbalance, feature distributions, heatmaps)
+- Leakage-safe feature engineering
+- Multiple models (Baseline, LR, DT, KNN, SVM, RF, GB, DNN) with Original and SMOTE variants
+- Threshold tuning for probability-based models
+- Consolidated results table and model comparison
+- Post-model analysis and failure-pattern exploration
+- Final pipeline lock-in and deployment on a new dataset
 
-## Expected Results
+## Next Steps
 
-- Identification of behavioral patterns distinguishing successful vs failed authentications  
-- Standardized model performance comparison  
-- Feature importance ranking  
-- Anomaly detection baseline for enterprise monitoring  
+- Stratified k-fold cross-validation for more robust performance estimates
+- Grid search or randomized search for hyperparameter tuning (e.g., KNN)
+- Anomaly detection framing (Isolation Forest, One-Class SVM)
+- Decision threshold tuning based on cost of false positives vs. false negatives
 
----
-
-## Why This Question Matters
-
-Enterprise authentication logs represent a critical security monitoring surface. With billions of daily authentication events, manual review is infeasible.
-
-A robust classification and anomaly detection framework enables:
-
-- Proactive identification of credential compromise attempts  
-- Reduced false positives through behavioral modeling  
-- Scalable security monitoring for large organizations  
+## Repository Structure
+Network_Classification/ 
+├── README.md 
+├── LANL_Auth_Classification.ipynb 
+├── auth.txt # Raw dataset (not in repo if large) 
+├── knn_predictions_500k.csv # Deployment predictions 
+└── Dataset_Lab.txt # Dataset description
